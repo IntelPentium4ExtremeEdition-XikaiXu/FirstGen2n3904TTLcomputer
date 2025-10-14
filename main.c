@@ -2,38 +2,20 @@
 #include<stdint.h>
 #include<stdbool.h>
 // #include "logic_Gate.h"
-// #include "instructionsets.h"
+#include "Cpu_sub_st.h"
 
-typedef enum{
-    MOV, //000
-    LDARegA,   //001
-    STA,    //010
-    ADD,    //011
-    SUB,    //100
-    JMP,    //101
-    LDARegB, //110
-    HLT,    //111
-}Instructions;
 
-typedef enum {
-    FETCH,
-    DECODE,
-    EXECUTE,
-    WRITE_BACK
-} CPUPipeline;
-
-typedef struct {
-    uint8_t RegisterA;
-    uint8_t RegisterB;
-    uint8_t PC;
-    bool zero_flag;
-    uint8_t sram[128]; //128 Byte of memory
-    uint8_t rom[128]; //128 Byte of ROM, for data Storagement
-    bool Halted; //cpu stopped
-    uint32_t clk;
-    CPUPipeline st;
-    uint8_t opcode;
-    uint8_t operand;
+typedef struct {        //Addr
+    uint8_t RegisterA; // 0x0
+    uint8_t RegisterB; // 0x1
+    uint8_t PC;             //  0x2
+    bool zero_flag;      // individual
+    uint8_t sram[2048]; //2K Byte of memory// currently only support 256 Byte
+    bool Halted; //cpu stopped //individual
+    uint32_t clk;      //clk generating
+    CPUPipeline st; // 0x7
+    uint8_t opcode; //0x8
+    uint8_t operand; //0x9
 } CPU;
 
 void  cpu_init_rst(CPU *cpu){
@@ -41,11 +23,9 @@ void  cpu_init_rst(CPU *cpu){
     cpu -> RegisterB = 0;
     cpu -> PC = 0;
     cpu -> zero_flag = false;
-    for (int i = 0; i < 128; i++) {cpu -> zero_flag = (cpu -> RegisterA == 0);
-            cpu -> PC += 2;
-            break;
+    for (int i = 0; i < 128; i++) {
         cpu->sram[i] = 0;
-        cpu->rom[i] = 0;
+        cpu->sram[i] = 0;
     }
     cpu -> Halted = false;
 
@@ -63,36 +43,39 @@ void cpu_execute(CPU *cpu, uint8_t opcode, uint8_t operand){
     //printf("current clk cycle: %d, PC: 0x%02X, State = %d, RegA = %d, RegB = %d, ZF = %d\n" )
     Instructions mop = (Instructions)opcode;
     switch (mop){
-        case MOV:
-            cpu -> RegisterA = operand;
-            cpu ->zero_flag = (cpu -> RegisterA == 0);
-            cpu -> PC += 2;
+        case JZ:
+            if (cpu -> zero_flag){
+                cpu -> PC = operand;
+            }
+            else{
+                cpu -> PC+=2;
+            }
             break;
         case LDARegA:
-            cpu -> RegisterA = cpu ->rom[operand & 0x7F];
+            cpu -> RegisterA = cpu ->sram[operand & 0x7F];
             cpu -> zero_flag = (cpu -> RegisterA == 0);
-            cpu ->PC +=2;
+            cpu -> PC+=2;
             break;
         case STA:
             cpu ->sram[operand & 0x7F] = cpu ->RegisterA;
-            cpu ->PC += 2;
+            cpu -> PC+=2;
             break;
         case ADD:
             cpu -> RegisterA = (cpu->RegisterA + cpu -> RegisterB) &0xFF; // 8 bit overflow?
             cpu -> zero_flag = (cpu -> RegisterA == 0);
-            cpu -> PC += 2;
+            cpu -> PC+=2;
             break;
         case SUB:
             cpu -> RegisterB = (cpu -> RegisterA - cpu -> RegisterB) & 0xFF;
             cpu -> zero_flag = (cpu -> RegisterA == 0);
-            cpu -> PC += 2;
+            cpu -> PC+=2;
             break;
         case JMP:
             cpu -> PC = operand;
             break;
         case LDARegB:
-            cpu -> RegisterB = cpu -> rom[operand & 0x7F];
-            cpu -> PC += 2;
+            cpu -> RegisterB = cpu -> sram[operand & 0x7F];
+            cpu -> PC+=2;
             break;
         case HLT:
             cpu -> Halted = true;
@@ -106,28 +89,29 @@ void cpu_execute(CPU *cpu, uint8_t opcode, uint8_t operand){
 int main(void){
     CPU cpu;
     cpu_init_rst(& cpu);
-    //example program compute the ROM from addr 0x10 and 0x11, str the value to ram 0x12
+    //example program compute the sram fsram addr 0x10 and 0x11, str the value to ram 0x12
 
-    cpu.rom[0x10] = 5;
-    cpu.rom[0x11] = 3;
-    cpu.RegisterB = cpu.rom[0x11]; //since the cpu does not have that feature of load the reg for now, pre load the data to verified the feature;
+    cpu.sram[0x10] = 5;
+    cpu.sram[0x11] = 3;
+    cpu.RegisterB = cpu.sram[0x11]; //since the cpu does not have that feature of load the reg for now, pre load the data to verified the feature;
 
-    //program store inside of the ROM:
+    //program store inside of the sram:
     uint8_t program[] = {    //PC
-        MOV, 0x00,                 //0x00 clean the reg A
-        LDARegA, 0x10,                  //0x02 load rom[0x10] t  RegisterA
-        ADD, 0x00,                 //0x04 RegA = RegA+RegB
-        STA, 0x12,       //0x06 Storage RegA content to sram 0x12
-        HLT,                             //0x08 Stop the operation
+        LDARegA, 0x00,        //0x00 load clean reg fsram sram0
+        LDARegA, 0x10,        //0x02 load sram[0x10] t  RegisterA
+        LDARegB, 0x11,
+        ADD, 0x00,                //0x0 RegA = RegA+RegB
+        STA, 0x12,                  //0x06 Storage RegA content to sram 0x12
+        LDARegA, 0x12,
+        JMP, 0x06,
     };
     for (int i = 0; i < sizeof(program); i++){
-        cpu.rom[i] = program[i];
+        cpu.sram[i] = program[i];
     }
-
     //execution of the sys:
     while (!cpu.Halted){
-        uint8_t opcode = cpu.rom[cpu.PC];
-        uint8_t operand = cpu.rom[cpu.PC + 1];
+        uint8_t opcode = cpu.sram[cpu.PC];
+        uint8_t operand = cpu.sram[cpu.PC + 1];
         printf("PC: 0x%02X, Opcode: 0x%02X, operand: 0x%02X, RegA: %d, RegB: %d, ZF: %d\n", cpu.PC, opcode, operand, cpu.RegisterA, cpu.RegisterB, cpu.zero_flag);
         cpu_execute(&cpu, opcode, operand);
     }

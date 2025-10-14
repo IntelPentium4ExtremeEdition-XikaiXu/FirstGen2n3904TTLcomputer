@@ -4,7 +4,6 @@
   * The cpu will major printed as this amount of stuff, this is just part of alu, each of the  C file represent the CPU structure
   */
 
-
 void SinglebitAdder(bool &ans, bool &cout, bool &x, bool &y, bool %cin){
     bool wire0, wire1, wire2, wire3, wire4, wire5,wire6;
     nor_gate(wire0, x, y);
