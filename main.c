@@ -2,21 +2,8 @@
 #include<stdint.h>
 #include<stdbool.h>
 // #include "logic_Gate.h"
-#include "Cpu_sub_st.h"
+#include "cpu.h"
 
-
-typedef struct {        //Addr
-    uint8_t RegisterA; // 0x0
-    uint8_t RegisterB; // 0x1
-    uint8_t PC;             //  0x2
-    bool zero_flag;      // individual
-    uint8_t sram[2048]; //2K Byte of memory// currently only support 256 Byte
-    bool Halted; //cpu stopped //individual
-    uint32_t clk;      //clk generating
-    CPUPipeline st; // 0x7
-    uint8_t opcode; //0x8
-    uint8_t operand; //0x9
-} CPU;
 
 void  cpu_init_rst(CPU *cpu){
     cpu -> RegisterA = 0;
@@ -66,7 +53,7 @@ void cpu_execute(CPU *cpu, uint8_t opcode, uint8_t operand){
             cpu -> PC+=2;
             break;
         case SUB:
-            cpu -> RegisterB = (cpu -> RegisterA - cpu -> RegisterB) & 0xFF;
+            cpu -> RegisterB = (cpu -> RegisterA - cpu -> RegisterSinglebitAdderB) & 0xFF;
             cpu -> zero_flag = (cpu -> RegisterA == 0);
             cpu -> PC+=2;
             break;
