@@ -1,7 +1,6 @@
 #include<stdio.h>
 typedef enum {
     FETCH,
-    DECODE,
     EXECUTE,
     WRITE_BACK
 } CPUPipeline;
@@ -13,19 +12,57 @@ typedef enum{
     ADD,    //0011
     SUB,    //0100
     JMP,    //0101
-    LDARegB, //0110
     HLT,    //0111
 }Instructions;
 
 typedef struct {        //Addr
-    uint8_t RegisterA; // 0x0
-    uint8_t RegisterB; // 0x1
-    uint8_t PC;             //  0x2
-    bool zero_flag;      // individual
-    uint8_t sram[2048]; //2K Byte of memory// currently only support 256 Byte
-    bool Halted; //cpu stopped //individual
-    uint32_t clk;      //clk generating
-    CPUPipeline st; // 0x7
-    uint8_t opcode; //0x8
-    uint8_t operand; //0x9
+    uint8_t RegisterA; // Individual Register DFF
+    uint8_t PC;             //  individual register, might be 12 bit self incrementing register
+    bool zero_flag;      // individual DFF
+    uint8_t sram[2048]; //2K Byte of memory// currently only support 256 Byte  [6116 Chipset]
+    bool Halted;           //cpu stopped //individual
+
+    CPUPipeline st;     // 4 reg sequence, 4 D FF with mux
+    uint8_t opcode;    //no reg required, hard circuit -> fake, no register required
+    uint8_t operand;  //no reg required, hard circuit -> fake, no register required
+    uint32_t clk;           //clk generating --> fake, no register needeed
 } CPU;
+
+void cpu_execute(CPU *cpu);
+
+void cpu_execute(CPU *cpu){
+    switch (cpu -> opcode){
+        case JZ:
+            if (cpu -> zero_flag){
+                cpu -> PC = cpu -> operand;
+            }
+            break;
+        case LDARegA:
+            cpu -> RegisterA = cpu ->sram[cpu -> operand];
+            cpu -> zero_flag = (cpu -> RegisterA == 0);
+            break;
+        case STA:
+            cpu ->sram[cpu -> operand] = cpu ->RegisterA;
+            break;
+        case ADD:
+            cpu -> RegisterA = (cpu->RegisterA + cpu -> sram[cpu -> operand]); // 8 bit overflow?
+            cpu -> zero_flag = (cpu -> RegisterA == 0);
+            break;
+        case SUB:
+            cpu -> RegisterA = (cpu -> RegisterA - cpu -> sram[cpu -> operand]);
+            cpu -> zero_flag = (cpu -> RegisterA == 0);
+            break;
+        case JMP:
+            cpu -> PC = cpu -> operand;
+            break;
+        case HLT:
+            cpu -> Halted = 1;
+            printf("lol, halt is there\n");
+            break;
+        default:
+            printf("unknown instrcution: 0x%02X\n", cpu -> opcode);
+            cpu->Halted = true;
+            break;
+    }
+}
+
