@@ -1,0 +1,51 @@
+.title KiCad schematic
+Q0B1 GND Net-_B0-Pad2_ Net-_A2-Pad1_ 2N3904
+PullUP1 Net-_A3-Pad1_ VCC 1800 R
+A1 A Net-_A1-Pad2_ 2700 R
+PullUP0 Net-_A2-Pad1_ VCC 1800 R
+B1 Net-_A2-Pad1_ Net-_B1-Pad2_ 2700 R
+Q1A1 GND Net-_A1-Pad2_ Net-_A3-Pad1_ 2N3904
+A3 Net-_A3-Pad1_ Net-_A3-Pad2_ 2700 R
+Q1B1 GND Net-_B1-Pad2_ Net-_A3-Pad1_ 2N3904
+PullUP3 Net-_A4-Pad1_ VCC 1800 R
+Q3A1 GND Net-_A3-Pad2_ Net-_A4-Pad1_ 2N3904
+Q6B1 GND Net-_B6-Pad2_ Net-_B7-Pad1_ 2N3904
+PullUP7 Y VCC 1800 R
+Q7B1 GND Net-_B7-Pad2_ Y 2N3904
+B7 Net-_B7-Pad1_ Net-_B7-Pad2_ 2700 R
+A7 Net-_A7-Pad1_ Net-_A7-Pad2_ 2700 R
+Q7A1 GND Net-_A7-Pad2_ Y 2N3904
+B8 Net-_A6-Pad1_ Net-_B8-Pad2_ 2700 R
+A8 Net-_A2-Pad1_ Net-_A8-Pad2_ 2700 R
+Q8A1 GND Net-_A8-Pad2_ Net-_PullUP8-Pad1_ 2N3904
+VB1 B GND VSOURCE
+VA1 A GND VSOURCE
+VD1 VCC GND VSOURCE
+B2 B Net-_B2-Pad2_ 2700 R
+VC1 C_in GND VSOURCE
+B4 C_in Net-_B4-Pad2_ 2700 R
+A4 Net-_A4-Pad1_ Net-_A4-Pad2_ 2700 R
+Q4A1 GND Net-_A4-Pad2_ Net-_A6-Pad1_ 2N3904
+PullUP4 Net-_A6-Pad1_ VCC 1800 R
+Q3B1 GND Net-_B3-Pad2_ Net-_A4-Pad1_ 2N3904
+B0 B Net-_B0-Pad2_ 2700 R
+A0 A Net-_A0-Pad2_ 2700 R
+Q0A1 GND Net-_A0-Pad2_ Net-_A2-Pad1_ 2N3904
+A2 Net-_A2-Pad1_ Net-_A2-Pad2_ 2700 R
+Q2A1 GND Net-_A2-Pad2_ Net-_B3-Pad1_ 2N3904
+Q5B1 GND Net-_B5-Pad2_ Net-_A7-Pad1_ 2N3904
+A6 Net-_A6-Pad1_ Net-_A6-Pad2_ 2700 R
+Q6A1 GND Net-_A6-Pad2_ Net-_B7-Pad1_ 2N3904
+B6 C_in Net-_B6-Pad2_ 2700 R
+PullUP6 Net-_B7-Pad1_ VCC 1800 R
+B5 Net-_A6-Pad1_ Net-_B5-Pad2_ 2700 R
+A5 Net-_A4-Pad1_ Net-_A5-Pad2_ 2700 R
+Q5A1 GND Net-_A5-Pad2_ Net-_A7-Pad1_ 2N3904
+PullUP5 Net-_A7-Pad1_ VCC 1800 R
+Q4B1 GND Net-_B4-Pad2_ Net-_A6-Pad1_ 2N3904
+Q2B1 GND Net-_B2-Pad2_ Net-_B3-Pad1_ 2N3904
+PullUP2 Net-_B3-Pad1_ VCC 1800 R
+Q8B1 GND Net-_B8-Pad2_ Net-_PullUP8-Pad1_ 2N3904
+PullUP8 Net-_PullUP8-Pad1_ VCC 1800 R
+B3 Net-_B3-Pad1_ Net-_B3-Pad2_ 2700 R
+.end
