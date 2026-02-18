@@ -1,13 +1,16 @@
 module adder_8bit (
-    input  logic [7:0] inputA,
-    input  logic [7:0] inputB,
+    input  logic [4:0] inputA,
+    input  logic [4:0] inputB,
     input  logic       cin,
-    output logic [7:0] outputY,
+    output logic [4:0] outputY,
     output logic       cout
 );
-    logic c1, c2, c3, c4, c5, c6, c7;
 
-    singlebit_adder a0 (
+//The internal connection inside of the Full adder system, 5 bit sel
+wire c1, c2, c3, c4;
+singlebit_adder a0, a1, a2, a3, a4;
+
+    a0 (
         .x   (inputA[0]),
         .y   (inputB[0]),
         .cin (cin),
@@ -15,7 +18,7 @@ module adder_8bit (
         .cout(c1)
     );
 
-    singlebit_adder a1 (
+    a1 (
         .x   (inputA[1]),
         .y   (inputB[1]),
         .cin (c1),
@@ -23,7 +26,7 @@ module adder_8bit (
         .cout(c2)
     );
 
-    singlebit_adder a2 (
+    a2 (
         .x   (inputA[2]),
         .y   (inputB[2]),
         .cin (c2),
@@ -31,7 +34,7 @@ module adder_8bit (
         .cout(c3)
     );
 
-    singlebit_adder a3 (
+    a3 (
         .x   (inputA[3]),
         .y   (inputB[3]),
         .cin (c3),
@@ -39,37 +42,12 @@ module adder_8bit (
         .cout(c4)
     );
 
-    singlebit_adder a4 (
+    a4 (
         .x   (inputA[4]),
         .y   (inputB[4]),
         .cin (c4),
         .ans (outputY[4]),
-        .cout(c5)
-    );
-
-    singlebit_adder a5 (
-        .x   (inputA[5]),
-        .y   (inputB[5]),
-        .cin (c5),
-        .ans (outputY[5]),
-        .cout(c6)
-    );
-
-    singlebit_adder a6 (
-        .x   (inputA[6]),
-        .y   (inputB[6]),
-        .cin (c6),
-        .ans (outputY[6]),
-        .cout(c7)
-    );
-
-    singlebit_adder a7 (
-        .x   (inputA[7]),
-        .y   (inputB[7]),
-        .cin (c7),
-        .ans (outputY[7]),
         .cout(cout)
     );
-
 endmodule
 

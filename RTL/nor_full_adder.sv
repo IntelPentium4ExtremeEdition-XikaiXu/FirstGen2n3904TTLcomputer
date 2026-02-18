@@ -5,7 +5,8 @@ module singlebit_adder (
     output logic ans,
     output logic cout
 );
-    logic wire0, wire1, wire2, wire3, wire4, wire5, wire6;
+// internal connection wire
+wire wire0, wire1, wire2, wire3, wire4, wire5, wire6;
 
     nor_gate g0 ( .a(x),     .b(y),     .y(wire0) );
     nor_gate g1 ( .a(wire0), .b(x),     .y(wire1) );
