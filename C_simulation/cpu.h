@@ -1,79 +1,46 @@
 #include<stdio.h>
+/* This is the homebrew CPU
+ * after mass amount of thinking and make tons of disicion, sel ins + data arch
+ * 3 bit ins + 5 bit data, total 8 bit length
+ * PC is 12 bit total, hope able to video output with 1602 LCD 
+ * 3 cycle file the addr, total 8 instructions , 2N3902 NOR GATE BASED
+ * Jack Xu, 2025-06-01 to pending 
+ */
+#ifndef CPU_H
+#define CPU_H
+
+// total instructions
 typedef enum{
-    ADD, 	//0000
-    SUB,        //0001
-    STA,        //0010
-    ADD,        //0011
-    SUB,        //0100
-    JMP,        //0101
-    HLT,        //0111
-}Instructions;
+    NOP,      	    //000 - null processing, do nothing, used for filling, aligned, timing lentancy process - null flag - null op
+    LDA_imm5        //001 - init ACC register, setting default value - zero flag(if imm5 == 0, z = 1) - acc <- imm5
+    ADD_imm5,       //010 - acculmate, PC counter increment - Z/C - acc <- acc + imm5
+    SUB_imm5,       //011 - Subtraction, comparision - Z/C - acc <- acc - imm5
+    AND_imm5,       //100 - bit masking, testing certain bit, clear bit - Z/C - acc <- acc & imm5
+    SHR,            //101 - reg left shifing, used for driving the lcd/dividing  - Z/C - acc <- acc >> 1
+    JZ_imm5,        //110 - statement jump, if statement ACC = 0 detecting - null flag - if Z =1, PC <- PC + sign_extend(imm5) -might 3 cycle
+    OUT_imm5        //111 - ACC to the mainbus, sending the data through this inst - null flag - mainbus <- acc 
+} cpu_instructions;
 
-typedef struct {        //Addr
-    uint8_t RegisterA; // Individual Register DFF
-    uint8_t PC;             //  individual register, might be 12 bit self incrementing register
-    bool zero_flag;      // individual DFF
-    uint8_t sram[2048]; //2K Byte of memory// currently only support 256 Byte  [6116 Chipset]
-    bool Halted;           //cpu stopped //individual
+// total registers 
+typedef struct {        
+    uint8_t AcculmateReg; //only use 5 bit of it
+    bool Z;               //zero flag register
+    bool C;               //carry flag register
+} cpu_reg_struct;
 
-    CPUPipeline st;     // 4 reg sequence, 4 D FF with mux
-    uint8_t opcode;    //no reg required, hard circuit -> fake, no register required
-    uint8_t operand;  //no reg required, hard circuit -> fake, no register required
-    uint32_t clk;           //clk generating --> fake, no register needeed
-} CPU;
-
-void cpu_execute(CPU *cpu);
-
-void cpu_execute(CPU *cpu){
-    switch (cpu -> opcode){
-        case JZ:
-            if (cpu -> zero_flag){
-                cpu -> PC = cpu -> operand;
-            }
-            break;
-        case LDARegA:
-            cpu -> RegisterA = cpu ->sram[cpu -> operand];
-            cpu -> zero_flag = (cpu -> RegisterA == 0);
-            break;
-        case STA:
-            cpu ->sram[cpu -> operand] = cpu ->RegisterA;
-            break;
-        case ADD:
-            cpu -> RegisterA = (cpu->RegisterA + cpu -> sram[cpu -> operand]); // 8 bit overflow?
-            cpu -> zero_flag = (cpu -> RegisterA == 0);
-            break;
-        case SUB:
-            cpu -> RegisterA = (cpu -> RegisterA - cpu -> sram[cpu -> operand]);
-            cpu -> zero_flag = (cpu -> RegisterA == 0);
-            break;
-        case JMP:
-            cpu -> PC = cpu -> operand;
-            break;
-        case HLT:
-            cpu -> Halted = 1;
-            printf("lol, halt is there\n");
-            break;
-        default:
-            printf("unknown instrcution: 0x%02X\n", cpu -> opcode);
-            cpu->Halted = true;
-            break;
-    }
+//total execution paths 
+void alu(uint8_t *input_A, uint8_t *input_B, uint8_t *output, bool C_in){
+	if (C_in == 1){
+		output = input_A - ~input_B;
+	}
+	else{
+		output = input_A + input_B;
+	}
 }
 
-typedef enum {
-    FETCH,
-    DECODE,
-    EXECUTE,
-    WRITE_BACK
-} CPUPipeline;
+void eu(){
+}
 
-typedef enum{
-    JZ, //0000
-    LDARegA,   //0001
-    STA,    //0010
-    ADD,    //0011
-    SUB,    //0100
-    JMP,    //0101
-    LDARegB, //0110
-    HLT,    //0111
-}Instructions;
+void cpu{
+}
+#endif
