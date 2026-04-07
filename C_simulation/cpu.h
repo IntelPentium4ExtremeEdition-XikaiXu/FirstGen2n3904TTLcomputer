@@ -243,5 +243,4 @@ static inline void cpu_clear_jump_request(cpu_t *cpu) {
     cpu->jump_request = false;
     cpu->jump_offset  = 0;
 }
-
 #endif /* CPU_H */
