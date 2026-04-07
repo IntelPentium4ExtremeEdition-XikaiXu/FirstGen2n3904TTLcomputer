@@ -1,9 +1,0 @@
-Opcode (3位二进制),助记符,完整指令格式,操作描述,影响标志,说明 / 用途
-000,NOP,NOP,无操作，什么都不做,无,填充、对齐、延时循环
-001,LDA imm5,LDA #imm5,ACC ← imm5（加载立即数到累加器）,Z（如果imm5=0则Z=1）,初始化ACC、设置常量
-010,ADD imm5,ADD #imm5,ACC ← ACC + imm5（5位加法）,"Z, C（进位）",累加、计数器递增
-011,SUB imm5,SUB #imm5,ACC ← ACC - imm5（5位减法）,"Z, C（借位）",递减、比较
-100,AND imm5,AND #imm5,ACC ← ACC & imm5（按位与）,Z,位掩码、测试特定位、清位
-101,SHR,SHR,ACC ← ACC >> 1（逻辑右移，最低位移入C）,"Z, C（原ACC[0]）",串行输出到移位寄存器（驱动LCD关键）
-110,JZ  imm5,JZ  #imm5,如果 Z=1，则 PC ← PC + sign_extend(imm5),无,条件跳转（循环、if ACC==0）
-111,OUT imm5,OUT #imm5,把ACC输出到总线（imm5可选作为端口/控制位）,无,送数据到移位寄存器 → LCD/RS/E/数据线
