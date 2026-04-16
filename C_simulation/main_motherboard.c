@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "cpu.h"
 #include "74HC161.h"
@@ -22,7 +24,10 @@ typedef struct {
     uint8_t output_reg;
     uint32_t tick_count;
     bool halted;
+    
 } motherboard_t;
+
+static int lcd_fifo = -1 ;
 
 static uint16_t mb_pc_read(const motherboard_t *mb) {
     return (uint16_t)(
@@ -78,6 +83,8 @@ static void mb_init(motherboard_t *mb) {
     rom64_reset(&mb->rom);
     sram8w_init(&mb->ram);
     cpu_init(&mb->cpu, &mb->main_bus);
+
+    lcd_fifo = open("/tmp/cpu_lcd_fifo", O_WRONLY | O_NONBLOCK);
 }
 
 static const char *opcode_names[] = {
@@ -103,6 +110,15 @@ static void mb_tick(motherboard_t *mb) {
     if (cpu_get_out_strobe(&mb->cpu)) {
         mb->output_reg = mb->main_bus;
         printf("\t>>> OUT = 0x%02X (%u)\n", mb->output_reg, mb->output_reg);
+	if ((mb -> cpu.immediate & 0x07) == 0x07){
+		uint8_t lcd_byte = mb -> output_reg;
+		if (lcd_fifo != -1){
+			if(write(lcd_fifo, &lcd_byte, 1) == -1){
+				close(lcd_fifo);
+				lcd_fifo = open("/tmp/cpu_lcd_fifo", O_WRONLY | O_NONBLOCK);
+			}
+		}
+	}
 
         sram_8w_set_address(&mb->ram, mb->cpu.immediate & SRAM_ADDR_MASK);
         sram_8w_set_ctl(&mb->ram, true, false, true);
