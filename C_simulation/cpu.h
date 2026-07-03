@@ -14,7 +14,7 @@ typedef enum {
     OPCODE_LDA_imm5,
     OPCODE_ADD_imm5,
     OPCODE_SUB_imm5,
-    OPCODE_AND_imm5,
+    OPCODE_LDM_addr3,
     OPCODE_SHR,
     OPCODE_JZ_imm5,
     OPCODE_OUT_imm5
@@ -37,6 +37,8 @@ typedef struct {
     bool jump_request;
     int16_t jump_offset;
     bool out_strobe;
+    bool load_strobe;
+    uint8_t load_addr;
 } cpu_t;    
 
 static inline void cpu_init(cpu_t *cpu, uint8_t *bus_ptr) {
@@ -52,6 +54,8 @@ static inline void cpu_init(cpu_t *cpu, uint8_t *bus_ptr) {
     cpu->jump_request   = false;
     cpu->jump_offset    = 0;
     cpu->out_strobe     = false;
+    cpu -> load_strobe  = false;
+    cpu -> load_addr    = 0;
 }
 
 static inline void cpu_reset(cpu_t *cpu) {
@@ -62,6 +66,8 @@ static inline void cpu_reset(cpu_t *cpu) {
     cpu->cycle          = 0;
     cpu->jump_request   = false;
     cpu->out_strobe     = false;
+    cpu->load_strobe    = false;
+    cpu -> load_addr = 0;
 }
 
 static inline void cpu_alu_5bit(uint8_t a, uint8_t b, bool is_sub,
@@ -113,7 +119,7 @@ static inline void cpu_clock(cpu_t *cpu) {
                 cpu->cycle = 0;
                 break;
             }
-            case OPCODE_AND_imm5:
+            case OPCODE_LDM_addr3:
                 cpu->regs.accumulator &= cpu->immediate;
                 cpu->regs.zero_flag   = (cpu->regs.accumulator == 0);
                 cpu->regs.carry_flag  = false;
